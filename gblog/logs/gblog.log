@@ -1,0 +1,4 @@
+2025-11-18 16:03:16.457	INFO	gblog/post.go:84	create post successfully	{"post_id": 3, "user_id": 12}
+2025-11-18 16:03:40.359	INFO	gblog/post.go:84	create post successfully	{"post_id": 4, "user_id": 12}
+2025-11-18 16:23:42.891	INFO	gblog/post.go:86	CreatePost successfully	{"post_id": 5, "user_id": 12}
+2025-11-18 16:23:52.255	INFO	gblog/user.go:130	login successfully	{"userID": 12, "username": "Frank"}

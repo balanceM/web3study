@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -61,6 +62,7 @@ func PasswordEncrypt() gin.HandlerFunc {
 func registerHandler(c *gin.Context) {
 	var user User
 	if err := c.ShouldBind(&user); err != nil {
+		zap.L().Error("register failed", zap.String("error", err.Error()), zap.String("path", c.Request.URL.Path), zap.String("method", c.Request.Method))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -70,12 +72,14 @@ func registerHandler(c *gin.Context) {
 	// 从上下文获取加密后的密码
 	hashedPassword, exists := c.Get("hashedPassword")
 	if !exists {
+		zap.L().Error("register failed", zap.String("error", "password not encrypted"), zap.String("path", c.Request.URL.Path), zap.String("method", c.Request.Method))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "password not encrypted"})
 		return
 	}
 	user.Password = hashedPassword.(string)
 	// 创建
 	if err := db.Create(&user).Error; err != nil {
+		zap.L().Error("register failed", zap.String("error", err.Error()), zap.String("path", c.Request.URL.Path), zap.String("method", c.Request.Method))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -85,9 +89,12 @@ func registerHandler(c *gin.Context) {
 	// 生成token
 	token, err := GenerateToken(user.ID, user.Username)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token generate failed"})
+		zap.L().Error("register failed", zap.String("error", "Token generate failed: "+err.Error()), zap.String("path", c.Request.URL.Path), zap.String("method", c.Request.Method))
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token generate failed: " + err.Error()})
 		return
 	}
+
+	zap.L().Info("register successfully", zap.String("username", user.Username))
 	// 返回
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -101,21 +108,26 @@ func loginHandler(c *gin.Context) {
 	username := c.PostForm("username")
 	result := db.Where("username = ?", username).First(&user)
 	if result.Error != nil {
+		zap.L().Error("login failed", zap.String("error", username+" not exist"), zap.String("path", c.Request.URL.Path), zap.String("method", c.Request.Method))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user not exist"})
 		return
 	}
 	// 比较密码
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(c.PostForm("password")))
 	if err != nil {
+		zap.L().Error("login failed", zap.String("error", "Password is not correct"), zap.String("path", c.Request.URL.Path), zap.String("method", c.Request.Method))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Password is not correct"})
 		return
 	}
 	// 生成token
 	token, err := GenerateToken(user.ID, user.Username)
 	if err != nil {
+		zap.L().Error("login failed", zap.String("error", "Token generate failed"), zap.String("path", c.Request.URL.Path), zap.String("method", c.Request.Method))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Token generate failed"})
 		return
 	}
+
+	zap.L().Info("login successfully", zap.Uint("userID", user.ID), zap.String("username", user.Username))
 	// 返回
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,

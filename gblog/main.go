@@ -20,6 +20,9 @@ func initDB() *gorm.DB {
 var db = initDB()
 
 func main() {
+	InitLogger("dev")   // 初始化日志
+	defer logger.Sync() // 程序退出时刷新缓冲区
+
 	r := gin.Default()
 	r.POST("/register", PasswordEncrypt(), registerHandler)
 	r.POST("/login", loginHandler)
@@ -32,8 +35,8 @@ func main() {
 	auth.GET("/post/:id", GetPostHandler)
 	auth.DELETE("/post/:id", DeletePostHandler)
 
-	auth.POST("/post/:post_id/comment", CreateCommentHandler)
-	auth.GET("/post/:post_id/comments", GetCommentsByPostID)
+	auth.POST("/post/:id/comment", CreateCommentHandler)
+	auth.GET("/post/:id/comments", GetCommentsByPostID)
 
 	r.Run(":8080")
 }
