@@ -8,7 +8,7 @@
 # 运行环境
 - 操作系统: Windows,
 - GO语言版本: go1.24.2
-## 运行步骤
+# 运行步骤
 - 进入项目根目录
   ```bash
   cd gblog
@@ -22,3 +22,5 @@
   ```bash
   air init
   air
+# 测试用例
+https://docs.apipost.net/docs/detail/559af93e20ca000?target_id=199a7227b0c433&locale=zh-cn
