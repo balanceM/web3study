@@ -1,0 +1,24 @@
+# GBlog - 个人博客系统
+基于 Go + Gin + GORM 开发的轻量级个人博客系统，支持文章 CRUD、JWT 认证等核心功能。
+# 技术栈
+- 后端框架: Gin
+- ORM工具: Gorm
+- 认证方式: JWT
+- 热重载工具: air
+# 运行环境
+- 操作系统: Windows,
+- GO语言版本: go1.24.2
+## 运行步骤
+- 进入项目根目录
+  ```bash
+  cd gblog
+- 安装依赖
+  ```bash
+  go mod tidy
+- 测试运行
+  ```bash
+  go run main.go
+- 热重载运行(开发环境)
+  ```bash
+  air init
+  air
